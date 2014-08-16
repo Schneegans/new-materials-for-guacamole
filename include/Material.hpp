@@ -23,6 +23,7 @@
 #define GUA_MATERIAL_HPP
 
 #include <MaterialDescription.hpp>
+#include <string_utils.hpp>
 
 #include <sstream>
 #include <iostream>
@@ -33,38 +34,72 @@ class Material {
  public:
   Material(MaterialDescription const& desc) {
 
-    std::stringstream source;
+    std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> global_uniforms;
 
-    source << "// vertex shader ---------" << std::endl;
-    source << "#version 420" << std::endl;
+    global_uniforms["gua_view_matrix"] = std::make_shared<UniformValue<float>>(1.f);
+    global_uniforms["gua_view_id"] = std::make_shared<UniformValue<int>>(43);
 
-    // uniforms
-    for (auto& pass: desc.get_vertex_passes()) {
-      for (auto& uniform: pass.get_uniforms()) {
-        source << "uniform " 
-               << uniform.second->get_glsl_type() << " " 
-               << uniform.first << ";" 
+    auto compile_description = [global_uniforms](std::vector<MaterialPass> const& passes) {
+      std::stringstream source;
+
+      // header ----------------------------------------------------------------
+      source << "#version 420" << std::endl;
+
+      // input and g-buffer output ---------------------------------------------
+      source << R"(
+        vec3  gua_position;
+        vec3  gua_normal;
+        vec3  gua_tangent;
+        vec3  gua_bitangent;
+        vec2  gua_texcoords;
+        vec2  gua_color;
+        float gua_shinyness;
+      )";
+
+      // uniforms --------------------------------------------------------------
+      source << std::endl;
+
+      auto uniforms = global_uniforms;
+
+      // merge uniforms
+      for (auto& pass: passes) {
+        uniforms.insert(pass.get_uniforms().begin(), pass.get_uniforms().end());
+      }
+
+      // print uniforms
+      for (auto& uniform: uniforms) {
+        source << "uniform "
+               << uniform.second->get_glsl_type() << " "
+               << uniform.first << ";"
                << std::endl;
       }
-    }
 
-    // passes
-    for (int i(0); i<desc.get_vertex_passes().size(); ++i) {
-      source << "void gua_pass_" << i << "() {" << std::endl;
-      source << desc.get_vertex_passes()[i].get_source() << std::endl;
+
+      // pass sources ----------------------------------------------------------
+      source << std::endl;
+      for (auto& pass: passes) {
+        source << pass.get_source() << std::endl;
+      }
+
+      // main ------------------------------------------------------------------
+      source << std::endl;
+      source << "int main() {" << std::endl;
+
+      for (auto& pass: passes) {
+        source << pass.get_name() << "();" << std::endl;
+      }
+
+      source << R"(
+        gl_Position = vec4();
+      )";
+
       source << "}" << std::endl;
-    }
 
-    // main
-    source << "int main() {" << std::endl;
+      return string_utils::format_code(source.str());
+    };
 
-    for (int i(0); i<desc.get_vertex_passes().size(); ++i) {
-      source << "  gua_pass_" << i << "();" << std::endl;
-    }
-
-    source << "}" << std::endl;
-
-    vertex_source_ = source.str();
+    vertex_source_   = compile_description(desc.get_vertex_passes());
+    fragment_source_ = compile_description(desc.get_fragment_passes());
   }
 
   void print_shaders() {

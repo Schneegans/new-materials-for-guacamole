@@ -19,60 +19,75 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_PASS_HPP
-#define GUA_MATERIAL_PASS_HPP
-
-#include <Uniform.hpp>
-
-#include <iostream>
-#include <string>
-#include <memory>
-#include <unordered_map>
+#include <string_utils.hpp>
 
 namespace gua {
+namespace string_utils {
 
-class MaterialPass {
- public:
+////////////////////////////////////////////////////////////////////////////
 
-  MaterialPass(std::string const& name)
-    : name_(name) {}
+std::vector<std::string> split(std::string const& s, char delim) {
 
-  MaterialPass& set_source(std::string const& source) {
-    source_ = source;
-    return *this;
+  std::vector<std::string> elems;
+
+  std::stringstream ss(s);
+  std::string item;
+
+  while (std::getline(ss, item, delim)) {
+    elems.push_back(item);
   }
 
-  template <typename T>
-  MaterialPass& set_uniform(std::string const& name, T const& value) {
-    auto uniform(uniforms_.find(name));
-
-    if (uniform == uniforms_.end()) {
-      uniforms_[name] = std::make_shared<UniformValue<T>>(value);
-    } else {
-      uniform->second->set_value(value);
-    }
-
-    return *this;
-  }
-
-  std::string get_name() const {
-    return name_;
-  }
-
-  std::string get_source() const {
-    return source_;
-  }
-
-  std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> const& get_uniforms() const {
-    return uniforms_;
-  }
-
- private:
-  std::string name_;
-  std::string source_;
-  std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> uniforms_;
-};
-
+  return elems;
 }
 
-#endif  // GUA_MATERIAL_PASS_HPP
+////////////////////////////////////////////////////////////////////////////
+
+std::string& replace(std::string& str,
+                     std::string const& old_str,
+                     std::string const& new_str) {
+
+  std::size_t pos = 0;
+  while ((pos = str.find(old_str, pos)) != std::string::npos) {
+    str.replace(pos, old_str.length(), new_str);
+    pos += new_str.length();
+  }
+  return str;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+std::string const format_code(std::string const& code) {
+
+  std::string result(code);
+
+  for (int i(0); i < 20; ++i) {
+    replace(result, "  ", " ");
+  }
+
+  replace(result, " \n", "\n");
+  replace(result, "\n ", "\n");
+
+  int depth(0);
+
+  for (unsigned pos(0); pos < result.length(); ++pos) {
+    if (result[pos] == '{') {
+      ++depth;
+    }
+
+    if (pos + 1 < result.length() && result[pos + 1] == '}') {
+      --depth;
+    }
+
+    if (result[pos] == '\n' && depth > 0) {
+      result.insert(pos + 1, depth * 2, ' ');
+      pos += 2;
+    }
+  }
+
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+}
+}

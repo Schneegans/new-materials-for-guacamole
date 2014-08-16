@@ -22,25 +22,37 @@
 #include <Material.hpp>
 
 int main() {
-    
+
   gua::MaterialDescription desc;
 
   desc
     .add_vertex_pass(
-      gua::MaterialPass()
-        .set_source("float horst = 5;")
+      gua::MaterialPass("apply_ssao")
+        .set_source(R"(
+          void apply_ssao() {
+            float horst = 5;
+          }
+        )")
         .set_uniform("enable", true)
         .set_uniform("transform", 1.f)
     )
     .add_vertex_pass(
-      gua::MaterialPass()
-        .set_source("int test = 4;")
+      gua::MaterialPass("check_visibility")
+        .set_source(R"(
+          void check_visibility() {
+            int test = 4;
+          }
+        )")
         .set_uniform("enable_me_too", true)
         .set_uniform("transform", 1.f)
     )
     .add_fragment_pass(
-      gua::MaterialPass()
-        .set_source("vec3 final = vec3(1);")
+      gua::MaterialPass("hide_backfaces")
+        .set_source(R"(
+          void hide_backfaces() {
+            vec3 final = vec3(1);
+          }
+        )")
         .set_uniform("enable", true)
     );
 

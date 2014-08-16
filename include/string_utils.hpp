@@ -19,60 +19,24 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_PASS_HPP
-#define GUA_MATERIAL_PASS_HPP
+#ifndef GUA_STRING_UTILS_HPP
+#define GUA_STRING_UTILS_HPP
 
-#include <Uniform.hpp>
-
-#include <iostream>
-#include <string>
-#include <memory>
-#include <unordered_map>
+#include <sstream>
+#include <vector>
 
 namespace gua {
+namespace string_utils {
 
-class MaterialPass {
- public:
+std::vector<std::string> split(std::string const& s, char delim);
 
-  MaterialPass(std::string const& name)
-    : name_(name) {}
+std::string& replace(std::string& str,
+                     std::string const& old_str,
+                     std::string const& new_str);
 
-  MaterialPass& set_source(std::string const& source) {
-    source_ = source;
-    return *this;
-  }
-
-  template <typename T>
-  MaterialPass& set_uniform(std::string const& name, T const& value) {
-    auto uniform(uniforms_.find(name));
-
-    if (uniform == uniforms_.end()) {
-      uniforms_[name] = std::make_shared<UniformValue<T>>(value);
-    } else {
-      uniform->second->set_value(value);
-    }
-
-    return *this;
-  }
-
-  std::string get_name() const {
-    return name_;
-  }
-
-  std::string get_source() const {
-    return source_;
-  }
-
-  std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> const& get_uniforms() const {
-    return uniforms_;
-  }
-
- private:
-  std::string name_;
-  std::string source_;
-  std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> uniforms_;
-};
+std::string const format_code(std::string const& code);
 
 }
+}
 
-#endif  // GUA_MATERIAL_PASS_HPP
+#endif  //GUA_STRING_UTILS_HPP
