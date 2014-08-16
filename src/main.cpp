@@ -54,6 +54,15 @@ int main() {
           }
         )")
         .set_uniform("enable", true)
+    )
+    .add_fragment_pass(
+      gua::MaterialPass("get_diffuse_color")
+        .set_source(R"(
+          void get_diffuse_color() {
+            gua_color = texture2D(color, gua_texcoords).rgb;
+          }
+        )")
+        .set_uniform("color", 1.f)
     );
 
   gua::Material material(desc);

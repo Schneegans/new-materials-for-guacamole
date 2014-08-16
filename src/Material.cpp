@@ -42,22 +42,41 @@ void Material::use(GeometryResource const& for_type) {
     global_uniforms["gua_view_matrix"] = std::make_shared<UniformValue<float>>(1.f);
     global_uniforms["gua_view_id"] = std::make_shared<UniformValue<int>>(43);
 
-    auto compile_description = [global_uniforms](std::vector<MaterialPass> const& passes) {
+    auto compile_description = [global_uniforms](std::list<MaterialPass> const& passes, bool vertex_shader) {
       std::stringstream source;
 
       // header ----------------------------------------------------------------
       source << "#version 420" << std::endl;
 
       // input and g-buffer output ---------------------------------------------
-      source << R"(
-        vec3  gua_position;
-        vec3  gua_normal;
-        vec3  gua_tangent;
-        vec3  gua_bitangent;
-        vec2  gua_texcoords;
-        vec2  gua_color;
-        float gua_shinyness;
-      )";
+      if (vertex_shader) {
+        source << R"(
+          out vec3  gua_position;
+          out vec3  gua_normal;
+          out vec3  gua_tangent;
+          out vec3  gua_bitangent;
+          out vec2  gua_texcoords;
+          out vec2  gua_color;
+          out float gua_shinyness;
+        )";
+
+      } else {
+
+
+        source << R"(
+          in vec3  gua_position;
+          in vec3  gua_normal;
+          in vec3  gua_tangent;
+          in vec3  gua_bitangent;
+          in vec2  gua_texcoords;
+          in vec2  gua_color;
+          in float gua_shinyness;
+
+          out vec3  gua_gbuffer_normal;
+          out vec2  gua_gbuffer_color;
+          out float gua_gbuffer_shinyness;
+        )";
+      }
 
       // uniforms --------------------------------------------------------------
       source << std::endl;
@@ -92,6 +111,7 @@ void Material::use(GeometryResource const& for_type) {
         source << pass.get_name() << "();" << std::endl;
       }
 
+
       source << R"(
         gl_Position = vec4();
       )";
@@ -102,10 +122,15 @@ void Material::use(GeometryResource const& for_type) {
       return string_utils::format_code(source.str());
     };
 
+    auto v_passes = desc_.get_vertex_passes();
+    auto f_passes = desc_.get_fragment_passes();
+
+    v_passes.push_front(for_type.get_vertex_material_pass());
+    f_passes.push_front(for_type.get_fragment_material_pass());
 
     auto new_shader = new Shader(
-      compile_description(desc_.get_vertex_passes()),
-      compile_description(desc_.get_fragment_passes())
+      compile_description(v_passes, true),
+      compile_description(f_passes, false)
     );
 
 

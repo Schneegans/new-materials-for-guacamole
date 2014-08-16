@@ -32,8 +32,14 @@ class GeometryResource {
   MaterialPass get_vertex_material_pass() const {
     return gua::MaterialPass("geometry_resource_pass")
       .set_source(R"(
+        layout(location=0) vec3 in_position;
+        layout(location=1) vec3 in_normal;
+        layout(location=2) vec2 in_texcoords;
+
         void geometry_resource_pass() {
-          float horst = 5;
+          gua_position = in_position;
+          gua_normal = in_normal;
+          gua_texcoords = in_texcoords;
         }
       )");
   }
@@ -41,9 +47,7 @@ class GeometryResource {
   MaterialPass get_fragment_material_pass() const {
     return gua::MaterialPass("geometry_resource_pass")
       .set_source(R"(
-        void geometry_resource_pass() {
-          float horst = 42;
-        }
+        void geometry_resource_pass() {}
       )");
   }
 

@@ -24,7 +24,7 @@
 
 #include <MaterialPass.hpp>
 
-#include <vector>
+#include <list>
 
 namespace gua {
 
@@ -41,18 +41,18 @@ class MaterialDescription {
     return *this;
   }
 
-  std::vector<MaterialPass> const& get_vertex_passes() const {
+  std::list<MaterialPass> const& get_vertex_passes() const {
     return vertex_passes_;
   }
 
-  std::vector<MaterialPass> const& get_fragment_passes() const {
+  std::list<MaterialPass> const& get_fragment_passes() const {
     return fragment_passes_;
   }
 
  private:
-  std::vector<MaterialPass> vertex_passes_;
-  std::vector<MaterialPass> fragment_passes_;
-    
+  std::list<MaterialPass> vertex_passes_;
+  std::list<MaterialPass> fragment_passes_;
+
 };
 
 }
