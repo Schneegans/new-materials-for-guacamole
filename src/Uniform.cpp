@@ -19,49 +19,12 @@
  *                                                                            *
  ******************************************************************************/
 
-#include <Material.hpp>
+#include <Uniform.hpp>
 
-int main() {
+namespace gua {
 
-  gua::MaterialDescription desc;
+template<> std::string UniformValue<int>::  get_glsl_type() const { return "int"; }
+template<> std::string UniformValue<float>::get_glsl_type() const { return "float"; }
+template<> std::string UniformValue<bool>:: get_glsl_type() const { return "bool"; }
 
-  desc
-    .add_vertex_pass(
-      gua::MaterialPass("apply_ssao")
-        .set_source(R"(
-          void apply_ssao() {
-            float horst = 5;
-          }
-        )")
-        .set_uniform("enable", true)
-        .set_uniform("transform", 1.f)
-    )
-    .add_vertex_pass(
-      gua::MaterialPass("check_visibility")
-        .set_source(R"(
-          void check_visibility() {
-            int test = 4;
-          }
-        )")
-        .set_uniform("enable_me_too", true)
-        .set_uniform("transform", 1.f)
-    )
-    .add_fragment_pass(
-      gua::MaterialPass("hide_backfaces")
-        .set_source(R"(
-          void hide_backfaces() {
-            vec3 final = vec3(1);
-          }
-        )")
-        .set_uniform("enable", true)
-    );
-
-  gua::Material material(desc);
-
-  gua::GeometryResource tri_mesh;
-  material.use(tri_mesh);
-
-  material.print_shaders();
-
-  return 0;
 }

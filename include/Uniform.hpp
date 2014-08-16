@@ -34,6 +34,7 @@ class UniformValueBase {
   UniformValueBase() {}
   virtual ~UniformValueBase() {}
 
+  virtual void apply() = 0;
   // virtual void apply(RenderContext const& context,
   //                    scm::gl::program_ptr program,
   //                    std::string const& name,
@@ -70,6 +71,7 @@ template <typename T> class UniformValue : public UniformValueBase {
  public:
   UniformValue(T const& value) : UniformValueBase(), value_(value) {}
 
+  virtual void apply() {}
   // void apply(RenderContext const& context,
   //            scm::gl::program_ptr program,
   //            std::string const& name,
@@ -87,10 +89,6 @@ template <typename T> class UniformValue : public UniformValueBase {
  private:
   T value_;
 };
-
-template<> std::string UniformValue<int>::get_glsl_type() const { return "int"; }
-template<> std::string UniformValue<float>::get_glsl_type() const { return "float"; }
-template<> std::string UniformValue<bool>::get_glsl_type() const { return "bool"; }
 
 }
 

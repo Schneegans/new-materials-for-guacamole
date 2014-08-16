@@ -19,49 +19,37 @@
  *                                                                            *
  ******************************************************************************/
 
-#include <Material.hpp>
+#ifndef GUA_GEOMETRY_RESOURCE_HPP
+#define GUA_GEOMETRY_RESOURCE_HPP
 
-int main() {
+#include <MaterialPass.hpp>
 
-  gua::MaterialDescription desc;
+namespace gua {
 
-  desc
-    .add_vertex_pass(
-      gua::MaterialPass("apply_ssao")
-        .set_source(R"(
-          void apply_ssao() {
-            float horst = 5;
-          }
-        )")
-        .set_uniform("enable", true)
-        .set_uniform("transform", 1.f)
-    )
-    .add_vertex_pass(
-      gua::MaterialPass("check_visibility")
-        .set_source(R"(
-          void check_visibility() {
-            int test = 4;
-          }
-        )")
-        .set_uniform("enable_me_too", true)
-        .set_uniform("transform", 1.f)
-    )
-    .add_fragment_pass(
-      gua::MaterialPass("hide_backfaces")
-        .set_source(R"(
-          void hide_backfaces() {
-            vec3 final = vec3(1);
-          }
-        )")
-        .set_uniform("enable", true)
-    );
+class GeometryResource {
+ public:
 
-  gua::Material material(desc);
+  MaterialPass get_vertex_material_pass() const {
+    return gua::MaterialPass("geometry_resource_pass")
+      .set_source(R"(
+        void geometry_resource_pass() {
+          float horst = 5;
+        }
+      )");
+  }
 
-  gua::GeometryResource tri_mesh;
-  material.use(tri_mesh);
+  MaterialPass get_fragment_material_pass() const {
+    return gua::MaterialPass("geometry_resource_pass")
+      .set_source(R"(
+        void geometry_resource_pass() {
+          float horst = 42;
+        }
+      )");
+  }
 
-  material.print_shaders();
 
-  return 0;
+};
+
 }
+
+#endif  // GUA_GEOMETRY_RESOURCE_HPP

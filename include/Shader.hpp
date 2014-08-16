@@ -19,49 +19,32 @@
  *                                                                            *
  ******************************************************************************/
 
-#include <Material.hpp>
+#ifndef GUA_SHADER_HPP
+#define GUA_SHADER_HPP
 
-int main() {
+#include <iostream>
+#include <string>
 
-  gua::MaterialDescription desc;
+namespace gua {
 
-  desc
-    .add_vertex_pass(
-      gua::MaterialPass("apply_ssao")
-        .set_source(R"(
-          void apply_ssao() {
-            float horst = 5;
-          }
-        )")
-        .set_uniform("enable", true)
-        .set_uniform("transform", 1.f)
-    )
-    .add_vertex_pass(
-      gua::MaterialPass("check_visibility")
-        .set_source(R"(
-          void check_visibility() {
-            int test = 4;
-          }
-        )")
-        .set_uniform("enable_me_too", true)
-        .set_uniform("transform", 1.f)
-    )
-    .add_fragment_pass(
-      gua::MaterialPass("hide_backfaces")
-        .set_source(R"(
-          void hide_backfaces() {
-            vec3 final = vec3(1);
-          }
-        )")
-        .set_uniform("enable", true)
-    );
+class Shader {
+ public:
+  Shader(std::string const& v_source, std::string const& f_source)
+    : v_source_(v_source),
+      f_source_(f_source) {}
 
-  gua::Material material(desc);
+  void use() {}
 
-  gua::GeometryResource tri_mesh;
-  material.use(tri_mesh);
+  void print_shaders() const {
+    std::cout << v_source_ << std::endl;
+    std::cout << f_source_ << std::endl;
+  }
 
-  material.print_shaders();
+ private:
+  std::string v_source_;
+  std::string f_source_;
+};
 
-  return 0;
 }
+
+#endif  // GUA_SHADER_HPP
