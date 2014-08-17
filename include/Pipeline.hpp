@@ -19,60 +19,41 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_PASS_HPP
-#define GUA_MATERIAL_PASS_HPP
+#ifndef GUA_PIPELINE_HPP
+#define GUA_PIPELINE_HPP
 
-#include <Uniform.hpp>
+#include <PipelinePass.hpp>
 
-#include <iostream>
-#include <string>
-#include <memory>
-#include <unordered_map>
+#include <list>
 
 namespace gua {
 
-class MaterialPass {
+class Pipeline {
  public:
 
-  MaterialPass(std::string const& name = "")
-    : name_(name) {}
-
-  MaterialPass& set_source(std::string const& source) {
-    source_ = source;
+  Pipeline& add_pass(PipelinePass const& pass) {
+    passes_.push_back(pass);
     return *this;
   }
 
-  template <typename T>
-  MaterialPass& set_uniform(std::string const& name, T const& value) {
-    auto uniform(uniforms_.find(name));
-
-    if (uniform == uniforms_.end()) {
-      uniforms_[name] = std::make_shared<UniformValue<T>>(value);
-    } else {
-      uniform->second->set_value(value);
-    }
-
+  Pipeline& set_output_texture_name(std::string const& name) {
+    output_texture_name_ = name;
     return *this;
   }
 
-  std::string get_name() const {
-    return name_;
+  std::list<PipelinePass> const& get_passes() const {
+    return passes_;
   }
 
-  std::string get_source() const {
-    return source_;
-  }
+  void process() {
 
-  std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> const& get_uniforms() const {
-    return uniforms_;
   }
 
  private:
-  std::string name_;
-  std::string source_;
-  std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> uniforms_;
+  std::list<PipelinePass> passes_;
+  std::string output_texture_name_;
 };
 
 }
 
-#endif  // GUA_MATERIAL_PASS_HPP
+#endif  // GUA_PIPELINE_HPP

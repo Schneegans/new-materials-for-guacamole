@@ -19,60 +19,54 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_PASS_HPP
-#define GUA_MATERIAL_PASS_HPP
+#ifndef GUA_PIPELINE_PASS_HPP
+#define GUA_PIPELINE_PASS_HPP
 
-#include <Uniform.hpp>
-
-#include <iostream>
 #include <string>
-#include <memory>
-#include <unordered_map>
 
 namespace gua {
 
-class MaterialPass {
+class PipelinePass {
  public:
 
-  MaterialPass(std::string const& name = "")
-    : name_(name) {}
+  PipelinePass& set_source(std::string const& source) {
 
-  MaterialPass& set_source(std::string const& source) {
-    source_ = source;
+    std::string header(R"(
+      #version 420
+
+      uniform ...
+
+    )");
+
+    source_ = header + source;
     return *this;
-  }
-
-  template <typename T>
-  MaterialPass& set_uniform(std::string const& name, T const& value) {
-    auto uniform(uniforms_.find(name));
-
-    if (uniform == uniforms_.end()) {
-      uniforms_[name] = std::make_shared<UniformValue<T>>(value);
-    } else {
-      uniform->second->set_value(value);
-    }
-
-    return *this;
-  }
-
-  std::string get_name() const {
-    return name_;
-  }
-
-  std::string get_source() const {
-    return source_;
-  }
-
-  std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> const& get_uniforms() const {
-    return uniforms_;
   }
 
  private:
-  std::string name_;
   std::string source_;
-  std::unordered_map<std::string, std::shared_ptr<UniformValueBase>> uniforms_;
 };
+
+
+class SSAOPass : public PipelinePass {
+ public:
+  SSAOPass() {
+    set_source(R"(
+      ...
+    )");
+  }
+};
+
+
+class BloomPass : public PipelinePass {
+ public:
+  BloomPass() {
+    set_source(R"(
+      ...
+    )");
+  }
+};
+
 
 }
 
-#endif  // GUA_MATERIAL_PASS_HPP
+#endif  // GUA_PIPELINE_PASS_HPP

@@ -62,7 +62,6 @@ void Material::use(GeometryResource const& for_type) {
 
       } else {
 
-
         source << R"(
           in vec3  gua_position;
           in vec3  gua_normal;
@@ -108,13 +107,17 @@ void Material::use(GeometryResource const& for_type) {
       source << "int main() {" << std::endl;
 
       for (auto& pass: passes) {
-        source << pass.get_name() << "();" << std::endl;
+        if (pass.get_name() != "") {
+          source << pass.get_name() << "();" << std::endl;
+        }
       }
 
-
-      source << R"(
-        gl_Position = vec4();
-      )";
+      // g-buffer output -------------------------------------------------------
+      if (vertex_shader) {
+        source << R"(
+          gl_Position = vec4();
+        )";
+      }
 
       source << "}" << std::endl;
 

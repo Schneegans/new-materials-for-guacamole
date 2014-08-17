@@ -20,12 +20,11 @@
  ******************************************************************************/
 
 #include <Material.hpp>
+#include <Pipeline.hpp>
 
 int main() {
 
-  gua::MaterialDescription desc;
-
-  desc
+  auto desc = gua::MaterialDescription()
     .add_vertex_pass(
       gua::MaterialPass("apply_ssao")
         .set_source(R"(
@@ -69,8 +68,19 @@ int main() {
 
   gua::GeometryResource tri_mesh;
   material.use(tri_mesh);
-
   material.print_shaders();
+
+  auto pipe = gua::Pipeline()
+    .set_output_texture_name("default_pipe")
+    .add_pass(
+      gua::PipelinePass().set_source(R"(
+        void get_diffuse_color() {
+          gua_color = texture2D(color, gua_texcoords).rgb;
+        }
+      )")
+    )
+    .add_pass(gua::BloomPass())
+    .add_pass(gua::SSAOPass());
 
   return 0;
 }
