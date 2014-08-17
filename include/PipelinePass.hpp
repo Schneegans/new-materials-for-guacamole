@@ -39,32 +39,68 @@ class PipelinePass {
     )");
 
     source_ = header + source;
+
     return *this;
   }
+
+  void process() {}
+
+  friend class Pipeline;
+
+ protected:
+  PipelinePass() {}
+  ~PipelinePass() {}
 
  private:
   std::string source_;
 };
 
 
+
+
+
+
+class LightingPass : public PipelinePass {
+ public:
+
+  friend class Pipeline;
+
+ protected:
+  LightingPass() {
+    set_source(R"(
+      ...
+    )");
+  }
+  ~LightingPass() {}
+};
+
+
+
+
+
 class SSAOPass : public PipelinePass {
  public:
+
+  SSAOPass& set_radius(float val) {
+    return *this;
+  }
+
+  SSAOPass& set_intensity(float val) {
+    return *this;
+  }
+
+  friend class Pipeline;
+
+ protected:
   SSAOPass() {
     set_source(R"(
       ...
     )");
   }
+  ~SSAOPass() {}
 };
 
 
-class BloomPass : public PipelinePass {
- public:
-  BloomPass() {
-    set_source(R"(
-      ...
-    )");
-  }
-};
 
 
 }

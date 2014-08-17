@@ -70,17 +70,15 @@ int main() {
   material.use(tri_mesh);
   material.print_shaders();
 
-  auto pipe = gua::Pipeline()
-    .set_output_texture_name("default_pipe")
-    .add_pass(
-      gua::PipelinePass().set_source(R"(
-        void get_diffuse_color() {
-          gua_color = texture2D(color, gua_texcoords).rgb;
-        }
-      )")
-    )
-    .add_pass(gua::BloomPass())
-    .add_pass(gua::SSAOPass());
+  gua::Pipeline pipe;
+  pipe.set_output_texture_name("default_pipe");
+  pipe.add_pass<gua::PipelinePass>().set_source(R"(
+    void get_diffuse_color() {
+      gua_color = texture2D(color, gua_texcoords).rgb;
+    }
+  )");
+  pipe.add_pass<gua::LightingPass>();
+  pipe.add_pass<gua::SSAOPass>().set_radius(10.f).set_intensity(0.5f);
 
   return 0;
 }

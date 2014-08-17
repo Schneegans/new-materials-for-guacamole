@@ -31,26 +31,35 @@ namespace gua {
 class Pipeline {
  public:
 
-  Pipeline& add_pass(PipelinePass const& pass) {
-    passes_.push_back(pass);
-    return *this;
+  ~Pipeline() {
+    for (auto pass: passes_) {
+      delete pass;
+    }
   }
 
-  Pipeline& set_output_texture_name(std::string const& name) {
+  template<class T>
+  T& add_pass() {
+    T* t = new T();
+    passes_.push_back(t);
+    return *t;
+  }
+
+  void set_output_texture_name(std::string const& name) {
     output_texture_name_ = name;
-    return *this;
   }
 
-  std::list<PipelinePass> const& get_passes() const {
+  std::list<PipelinePass*> const& get_passes() const {
     return passes_;
   }
 
   void process() {
-
+    for (auto pass: passes_) {
+      pass->process();
+    }
   }
 
  private:
-  std::list<PipelinePass> passes_;
+  std::list<PipelinePass*> passes_;
   std::string output_texture_name_;
 };
 
