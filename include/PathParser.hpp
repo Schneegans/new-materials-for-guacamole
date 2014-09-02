@@ -19,45 +19,69 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_HPP
-#define GUA_MATERIAL_HPP
+#ifndef GUA_PATH_PARSER_HPP
+#define GUA_PATH_PARSER_HPP
 
-#include <MaterialDescription.hpp>
-#include <MaterialInstance.hpp>
-#include <GeometryResource.hpp>
-#include <Shader.hpp>
-#include <string_utils.hpp>
+#include <vector>
+#include <string>
 
-#include <typeindex>
-#include <sstream>
-#include <iostream>
+/**
+ * This class may be used to parse a path.
+ *
+ */
 
 namespace gua {
 
-class Material {
+class PathParser {
  public:
 
-  Material(std::string const& name, MaterialDescription const& desc);
+  /**
+   * Constructor.
+   *
+   * This constructs a PathParser
+   */
+  PathParser();
 
-  MaterialDescription const& get_description() const;
+  /**
+   * Parses a path.
+   *
+   * This function parses a path and stores each substring of the path
+   * which is separated by "/" into a vector cell.
+   * Special attention is payed to a leading "/", which is considered
+   * as part of the path and therefore also added to the vector.
+   * Furthermore a finishing "/" sets a trigger.
+   *
+   * \param path       The path to be parsed.
+   */
+  void parse(std::string const& path);
 
-  void use(GeometryResource const& for_type, MaterialInstance const& overwrite = MaterialInstance());
+  std::string get_path(bool ignore_last_entry = false) const;
 
-  MaterialInstance const  get_new_instance()     const;
-  MaterialInstance const& get_default_instance() const;
-  MaterialInstance&       get_default_instance();
+  /**
+   * Returns a parsed path.
+   *
+   * This function returns the vector containing the parsed path's data.
+   *
+   * \return path_data The parsed path's data.
+   */
+  std::vector<std::string> const& get_parsed_path() const;
 
-  void print_shaders() const;
+  /**
+   * Returns if the pars has a "/" at its end.
+   *
+   * This function returns true if the trigger on a finishing "/" is set.
+   *
+   * \return finished_by_slash The value of the trigger.
+   */
+  bool path_is_finished_by_slash() const;
+
+  void make_absolute(std::string const& path_from_cwd);
 
  private:
-
-  MaterialDescription desc_;
-
-  std::unordered_map<std::type_index, Shader*> shaders_;
-
-  MaterialInstance default_instance_;
+  std::vector<std::string> parsed_path_;
+  bool finished_by_slash_;
 };
 
 }
 
-#endif  // GUA_MATERIAL_HPP
+#endif  //PATH_PARSER_HPP

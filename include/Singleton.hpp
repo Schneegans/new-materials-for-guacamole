@@ -19,45 +19,60 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_HPP
-#define GUA_MATERIAL_HPP
+#ifndef GUA_SINGLETON_HPP
+#define GUA_SINGLETON_HPP
 
-#include <MaterialDescription.hpp>
-#include <MaterialInstance.hpp>
-#include <GeometryResource.hpp>
-#include <Shader.hpp>
-#include <string_utils.hpp>
+#include <cstddef>
 
-#include <typeindex>
-#include <sstream>
-#include <iostream>
+/**
+ * This is base class for singletons.
+ *
+ * Singletons are classes, which are only instanciated once.
+ */
 
 namespace gua {
 
-class Material {
+template <typename T> class Singleton {
  public:
 
-  Material(std::string const& name, MaterialDescription const& desc);
+  /**
+   * Gets the instance.
+   *
+   * Singletons are classes, which are only instanciated once. This
+   * method will create this instance if necessary and return a pointer
+   * to it.
+   *
+   * \return The instance of this singleton.
+   */
+  static T* instance() {
+    static T instance;
+    return &instance;
+  };
 
-  MaterialDescription const& get_description() const;
 
-  void use(GeometryResource const& for_type, MaterialInstance const& overwrite = MaterialInstance());
+ protected:
 
-  MaterialInstance const  get_new_instance()     const;
-  MaterialInstance const& get_default_instance() const;
-  MaterialInstance&       get_default_instance();
+  /**
+   * Constructor.
+   *
+   * Has to be private in derived classe.
+   */
+  Singleton() {};
 
-  void print_shaders() const;
+  /**
+   * Destructor.
+   *
+   * Has to be private in derived classe.
+   */
+  virtual ~Singleton() {};
 
  private:
 
-  MaterialDescription desc_;
+  Singleton(Singleton const& copy) = delete;
+  Singleton& operator= (Singleton const&) = delete;
 
-  std::unordered_map<std::type_index, Shader*> shaders_;
-
-  MaterialInstance default_instance_;
 };
 
 }
 
-#endif  // GUA_MATERIAL_HPP
+#endif  //SINGLETON_HPP

@@ -23,14 +23,36 @@
 
 namespace gua {
 
-Material::Material(MaterialDescription const& desc)
-  : desc_(desc) {}
+Material::Material(std::string const& name, MaterialDescription const& desc)
+  : desc_(desc),
+    default_instance_(name)
+{
+  auto v_passes = desc_.get_vertex_passes();
+  auto f_passes = desc_.get_fragment_passes();
+
+  for (auto const& pass : v_passes) {
+    for (auto const& uniform : pass.get_uniforms()) {
+      default_instance_.uniforms_.insert(std::make_pair(
+                                    uniform.first, uniform.second->get_copy()));
+    }
+  }
+
+  for (auto const& pass : f_passes) {
+    for (auto const& uniform : pass.get_uniforms()) {
+      default_instance_.uniforms_.insert(std::make_pair(
+                                    uniform.first, uniform.second->get_copy()));
+    }
+  }
+}
 
 MaterialDescription const& Material::get_description() const {
   return desc_;
 }
 
-void Material::use(GeometryResource const& for_type) {
+void Material::use(GeometryResource const& for_type, MaterialInstance const& overwrite) {
+  MaterialInstance used_instance(overwrite);
+  used_instance.merge(default_instance_);
+
   auto shader(shaders_.find(typeid(for_type)));
 
   if (shader != shaders_.end()) {
@@ -141,6 +163,18 @@ void Material::use(GeometryResource const& for_type) {
 
     shaders_[typeid(for_type)] = new_shader;
   }
+}
+
+MaterialInstance const Material::get_new_instance() const {
+  return MaterialInstance(default_instance_.get_material_name());
+}
+
+MaterialInstance const& Material::get_default_instance() const {
+  return default_instance_;
+}
+
+MaterialInstance& Material::get_default_instance() {
+  return default_instance_;
 }
 
 void Material::print_shaders() const {

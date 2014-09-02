@@ -19,45 +19,55 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_HPP
-#define GUA_MATERIAL_HPP
+#ifndef GUA_MATERIAL_DATABASE_HPP
+#define GUA_MATERIAL_DATABASE_HPP
 
-#include <MaterialDescription.hpp>
-#include <MaterialInstance.hpp>
-#include <GeometryResource.hpp>
-#include <Shader.hpp>
-#include <string_utils.hpp>
+// guacamole headers
+#include <Singleton.hpp>
+#include <Database.hpp>
+#include <Material.hpp>
 
-#include <typeindex>
-#include <sstream>
-#include <iostream>
+#include <mutex>
 
 namespace gua {
 
-class Material {
+/**
+ * A data base for materials.
+ *
+ * This Database stores material data. It can be accessed via string
+ * identifiers.
+ *
+ * \ingroup gua_databases
+ */
+class MaterialDatabase : public Database<Material>,
+                         public Singleton<MaterialDatabase> {
  public:
 
-  Material(std::string const& name, MaterialDescription const& desc);
+  std::mutex update_lock;
 
-  MaterialDescription const& get_description() const;
+  /**
+   * Pre-loads some Materials.
+   *
+   * This method loads gmd materials to the data base.
+   *
+   * \param directory    An absolute or relative path to the
+   *                     directory containing gmd files.
+   */
+  static void load_materials_from(std::string const& directory);
 
-  void use(GeometryResource const& for_type, MaterialInstance const& overwrite = MaterialInstance());
+  static void load_material(std::string const& filename);
 
-  MaterialInstance const  get_new_instance()     const;
-  MaterialInstance const& get_default_instance() const;
-  MaterialInstance&       get_default_instance();
+  void reload_all();
 
-  void print_shaders() const;
+  friend class Singleton<MaterialDatabase>;
 
  private:
+  // this class is a Singleton --- private c'tor and d'tor
+  MaterialDatabase() {}
+  ~MaterialDatabase() {}
 
-  MaterialDescription desc_;
-
-  std::unordered_map<std::type_index, Shader*> shaders_;
-
-  MaterialInstance default_instance_;
 };
 
 }
 
-#endif  // GUA_MATERIAL_HPP
+#endif  // GUA_MATERIAL_DATABASE_HPP

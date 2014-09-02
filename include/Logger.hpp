@@ -19,45 +19,33 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_HPP
-#define GUA_MATERIAL_HPP
+#ifndef GUA_LOGGER_HPP
+#define GUA_LOGGER_HPP
 
-#include <MaterialDescription.hpp>
-#include <MaterialInstance.hpp>
-#include <GeometryResource.hpp>
-#include <Shader.hpp>
-#include <string_utils.hpp>
-
-#include <typeindex>
-#include <sstream>
 #include <iostream>
 
 namespace gua {
 
-class Material {
+class Logger {
+
  public:
 
-  Material(std::string const& name, MaterialDescription const& desc);
+  static bool enable_debug;
+  static bool enable_message;
+  static bool enable_warning;
+  static bool enable_error;
 
-  MaterialDescription const& get_description() const;
+  #define LOG_DEBUG   debug_impl  (__FILE__, __LINE__)
+  #define LOG_MESSAGE message_impl(__FILE__, __LINE__)
+  #define LOG_WARNING warning_impl(__FILE__, __LINE__)
+  #define LOG_ERROR   error_impl  (__FILE__, __LINE__)
 
-  void use(GeometryResource const& for_type, MaterialInstance const& overwrite = MaterialInstance());
-
-  MaterialInstance const  get_new_instance()     const;
-  MaterialInstance const& get_default_instance() const;
-  MaterialInstance&       get_default_instance();
-
-  void print_shaders() const;
-
- private:
-
-  MaterialDescription desc_;
-
-  std::unordered_map<std::type_index, Shader*> shaders_;
-
-  MaterialInstance default_instance_;
+  static std::ostream& debug_impl(const char* file, int line);
+  static std::ostream& message_impl(const char* file, int line);
+  static std::ostream& warning_impl(const char* file, int line);
+  static std::ostream& error_impl(const char* file, int line);
 };
 
 }
 
-#endif  // GUA_MATERIAL_HPP
+#endif  // GUA_LOGGER_HPP

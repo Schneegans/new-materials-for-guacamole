@@ -19,45 +19,52 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_HPP
-#define GUA_MATERIAL_HPP
+// class header
+#include <MaterialDatabase.hpp>
 
-#include <MaterialDescription.hpp>
-#include <MaterialInstance.hpp>
-#include <GeometryResource.hpp>
-#include <Shader.hpp>
-#include <string_utils.hpp>
+// guacamole headers
+#include <Directory.hpp>
 
-#include <typeindex>
+// external headers
 #include <sstream>
-#include <iostream>
 
 namespace gua {
 
-class Material {
- public:
+////////////////////////////////////////////////////////////////////////////////
 
-  Material(std::string const& name, MaterialDescription const& desc);
+void MaterialDatabase::load_materials_from(std::string const& directory) {
 
-  MaterialDescription const& get_description() const;
+  gua::Directory dir(directory);
+  std::stringstream content(dir.get_content());
+  std::string parse_string;
 
-  void use(GeometryResource const& for_type, MaterialInstance const& overwrite = MaterialInstance());
+  while (content >> parse_string) {
+    unsigned suffix_pos = unsigned(parse_string.find(".gmd"));
 
-  MaterialInstance const  get_new_instance()     const;
-  MaterialInstance const& get_default_instance() const;
-  MaterialInstance&       get_default_instance();
-
-  void print_shaders() const;
-
- private:
-
-  MaterialDescription desc_;
-
-  std::unordered_map<std::type_index, Shader*> shaders_;
-
-  MaterialInstance default_instance_;
-};
-
+    if (parse_string.length() - suffix_pos == 4) {
+      auto name(dir.get_directory_name() + parse_string);
+      load_material(name);
+    }
+  }
 }
 
-#endif  // GUA_MATERIAL_HPP
+////////////////////////////////////////////////////////////////////////////////
+
+void MaterialDatabase::load_material(std::string const& filename) {
+  if (!instance()->is_supported(filename)) {
+    // auto mat = std::make_shared<Material>(filename, filename);
+    // instance()->add(filename, mat);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void MaterialDatabase::reload_all() {
+  // for (auto const& date: data_) {
+  //   date.second->reload();
+  // }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+}

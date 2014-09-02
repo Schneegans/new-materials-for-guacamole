@@ -19,45 +19,65 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_HPP
-#define GUA_MATERIAL_HPP
+#ifndef GUA_DIRECTORY_HPP
+#define GUA_DIRECTORY_HPP
 
-#include <MaterialDescription.hpp>
-#include <MaterialInstance.hpp>
-#include <GeometryResource.hpp>
-#include <Shader.hpp>
-#include <string_utils.hpp>
+#include <string>
 
-#include <typeindex>
-#include <sstream>
-#include <iostream>
+/**
+ * This class is used to read the contents of a directory.
+ */
 
 namespace gua {
 
-class Material {
+class Directory {
+
  public:
 
-  Material(std::string const& name, MaterialDescription const& desc);
+  /**
+   * Constructor.
+   *
+   * This constructs a Directory without a path.
+   */
+  Directory();
 
-  MaterialDescription const& get_description() const;
+  /**
+   * Constructor.
+   *
+   * This constructs a Directory with a path.
+   *
+   * \param path_name The path to the directory to be read.
+   */
+  Directory(std::string const& path_name);
 
-  void use(GeometryResource const& for_type, MaterialInstance const& overwrite = MaterialInstance());
+  /**
+   * Returns if the given path to the directory is valid.
+   *
+   * \return The validity of the path.
+   */
+  bool is_valid() const;
 
-  MaterialInstance const  get_new_instance()     const;
-  MaterialInstance const& get_default_instance() const;
-  MaterialInstance&       get_default_instance();
+  /**
+   * Returns the given directory's content.
+   *
+   * \return The given directory's content.
+   */
+  std::string const& get_content() const;
 
-  void print_shaders() const;
+  /**
+   * Returns the given directory's name.
+   *
+   * \return The given directory's name.
+   */
+  std::string const& get_directory_name() const;
 
  private:
+  std::string path_name_;
+  mutable std::string content_;
 
-  MaterialDescription desc_;
-
-  std::unordered_map<std::type_index, Shader*> shaders_;
-
-  MaterialInstance default_instance_;
+  mutable bool is_loaded_;
 };
 
 }
 
-#endif  // GUA_MATERIAL_HPP
+#endif  // GUA_DIRECTORY_HPP

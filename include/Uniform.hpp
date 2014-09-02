@@ -62,6 +62,8 @@ class UniformValueBase {
     }
   }
 
+  virtual UniformValueBase* get_copy() const = 0;
+
   virtual std::string get_glsl_type() const = 0;
 };
 
@@ -83,6 +85,10 @@ template <typename T> class UniformValue : public UniformValueBase {
   T const& value() const { return value_; }
 
   void value(T const& value) { value_ = value; }
+
+  virtual UniformValueBase* get_copy() const {
+    return new UniformValue<T>(value_);
+  }
 
   virtual std::string get_glsl_type() const;
 

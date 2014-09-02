@@ -19,45 +19,57 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_HPP
-#define GUA_MATERIAL_HPP
+#ifndef GUA_MATERIAL_INSTANCE_HPP
+#define GUA_MATERIAL_INSTANCE_HPP
 
-#include <MaterialDescription.hpp>
-#include <MaterialInstance.hpp>
-#include <GeometryResource.hpp>
-#include <Shader.hpp>
-#include <string_utils.hpp>
+#include <Uniform.hpp>
 
-#include <typeindex>
-#include <sstream>
-#include <iostream>
+#include <string>
+#include <unordered_map>
 
 namespace gua {
 
-class Material {
- public:
+class MaterialInstance {
+  public:
+    MaterialInstance(MaterialInstance const& to_copy);
+    ~MaterialInstance();
 
-  Material(std::string const& name, MaterialDescription const& desc);
+    std::string const& get_material_name() const {
+      return material_name_;
+    }
 
-  MaterialDescription const& get_description() const;
+    template <typename T>
+    MaterialInstance& set_uniform(std::string const& name, T const& value) {
+      auto uniform(uniforms_.find(name));
 
-  void use(GeometryResource const& for_type, MaterialInstance const& overwrite = MaterialInstance());
+      if (uniform == uniforms_.end()) {
+        uniforms_[name] = new UniformValue<T>(value);
+      } else {
+        uniform->second->set_value(value);
+      }
 
-  MaterialInstance const  get_new_instance()     const;
-  MaterialInstance const& get_default_instance() const;
-  MaterialInstance&       get_default_instance();
+      return *this;
+    }
 
-  void print_shaders() const;
+    void unset_uniform(std::string const& name);
 
- private:
+    std::unordered_map<std::string, UniformValueBase*> const&
+                                                           get_uniforms() const;
 
-  MaterialDescription desc_;
+    void merge(MaterialInstance const& to_merge);
 
-  std::unordered_map<std::type_index, Shader*> shaders_;
+    void operator= (MaterialInstance const& rhs);
 
-  MaterialInstance default_instance_;
+  private:
+    friend class Material;
+
+    MaterialInstance(std::string const& material_name = "");
+
+    std::string material_name_;
+    std::unordered_map<std::string, UniformValueBase*> uniforms_;
+
 };
 
 }
 
-#endif  // GUA_MATERIAL_HPP
+#endif  // GUA_MATERIAL_INSTANCE_HPP

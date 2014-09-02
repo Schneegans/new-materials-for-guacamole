@@ -20,6 +20,7 @@
  ******************************************************************************/
 
 #include <Material.hpp>
+#include <MaterialDatabase.hpp>
 #include <Pipeline.hpp>
 
 int main() {
@@ -64,11 +65,17 @@ int main() {
         .set_uniform("color", 1.f)
     );
 
-  gua::Material material(desc);
+  auto material(std::make_shared<gua::Material>("test", desc));
+  gua::MaterialDatabase::instance()->add("test", material);
+
+  auto instance(material->get_default_instance());
+  for (auto const& overwrite : instance.get_uniforms()) {
+    std::cout << overwrite.first << std::endl;
+  }
 
   gua::GeometryResource tri_mesh;
-  material.use(tri_mesh);
-  material.print_shaders();
+  material->use(tri_mesh);
+  material->print_shaders();
 
   gua::Pipeline pipe;
   pipe.set_output_texture_name("default_pipe");

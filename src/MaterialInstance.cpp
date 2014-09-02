@@ -19,45 +19,59 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_HPP
-#define GUA_MATERIAL_HPP
-
-#include <MaterialDescription.hpp>
 #include <MaterialInstance.hpp>
-#include <GeometryResource.hpp>
-#include <Shader.hpp>
-#include <string_utils.hpp>
-
-#include <typeindex>
-#include <sstream>
-#include <iostream>
 
 namespace gua {
 
-class Material {
- public:
+  MaterialInstance::MaterialInstance(std::string const& material_name):
+    material_name_(material_name)
+    {}
 
-  Material(std::string const& name, MaterialDescription const& desc);
+  MaterialInstance::MaterialInstance(MaterialInstance const& to_copy) {
+    material_name_ = to_copy.material_name_;
 
-  MaterialDescription const& get_description() const;
+    for (auto const& uniform : to_copy.uniforms_) {
+      uniforms_.insert(
+        std::make_pair(uniform.first, uniform.second->get_copy()));
+    }
+  }
 
-  void use(GeometryResource const& for_type, MaterialInstance const& overwrite = MaterialInstance());
+  MaterialInstance::~MaterialInstance() {
+    for (auto const& uniform : uniforms_) {
+      delete uniform.second;
+    }
+  }
 
-  MaterialInstance const  get_new_instance()     const;
-  MaterialInstance const& get_default_instance() const;
-  MaterialInstance&       get_default_instance();
 
-  void print_shaders() const;
+  void MaterialInstance::unset_uniform(std::string const& name) {
+    auto pos(uniforms_.find(name));
 
- private:
+    if (pos != uniforms_.end()) {
+      delete pos->second;
+      uniforms_.erase(pos);
+    }
+  }
 
-  MaterialDescription desc_;
+  std::unordered_map<std::string, UniformValueBase*> const&
+                              MaterialInstance::get_uniforms() const {
+    return uniforms_;
+  }
 
-  std::unordered_map<std::type_index, Shader*> shaders_;
+  void MaterialInstance::merge(MaterialInstance const& to_merge) {
+    if (material_name_ == to_merge.material_name_) {
+      uniforms_.insert(to_merge.uniforms_.begin(), to_merge.uniforms_.end());
+    } else {
+      //WARNING
+    }
+  }
 
-  MaterialInstance default_instance_;
-};
+  void MaterialInstance::operator= (MaterialInstance const& rhs) {
+    material_name_ = rhs.material_name_;
+
+    for (auto const& uniform : rhs.uniforms_) {
+      uniforms_.insert(
+        std::make_pair(uniform.first, uniform.second->get_copy()));
+    }
+  }
 
 }
-
-#endif  // GUA_MATERIAL_HPP
