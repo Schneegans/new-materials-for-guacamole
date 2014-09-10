@@ -19,35 +19,84 @@
  *                                                                            *
  ******************************************************************************/
 
-#ifndef GUA_MATERIAL_DESCRIPTION_HPP
-#define GUA_MATERIAL_DESCRIPTION_HPP
+#ifndef GUA_TEXTFILE_HPP
+#define GUA_TEXTFILE_HPP
 
-#include <MaterialPass.hpp>
+#include <string>
 
-#include <list>
+/**
+ * This class is used to read text files.
+ */
 
 namespace gua {
 
-class MaterialDescription {
+class TextFile {
+
  public:
 
-  void load_from_file(std::string const& file_name);
+  /**
+   * Constructor.
+   *
+   * This constructs a TextFile without a file.
+   */
+  TextFile();
 
-  MaterialDescription& add_vertex_pass(MaterialPass const& pass);
+  /**
+   * Constructor.
+   *
+   * This constructs a TextFile with a file.
+   *
+   * \param file_name The file to be read.
+   */
+  TextFile(std::string const& file_name);
 
-  MaterialDescription& add_fragment_pass(MaterialPass const& pass);
+  /**
+   * Returns if the given file is valid.
+   *
+   * \return The validity of the file.
+   */
+  bool is_valid() const;
 
-  std::list<MaterialPass> const& get_vertex_passes() const;
+  /**
+   * Returns the given file's content.
+   *
+   * \return The given file's content.
+   */
+  std::string const& get_content() const;
 
-  std::list<MaterialPass> const& get_fragment_passes() const;
+  /**
+   * Sets the given file's content.
+   *
+   * \param The new content.
+   */
+  void set_content(std::string const& content);
+
+  /**
+   * Saves the file
+   *
+   */
+  bool save(bool create_subdirs = false) const;
+
+  /**
+   * Deletes the file from the file system
+   *
+   */
+  void remove();
+
+  /**
+   * Returns the given file's name.
+   *
+   * \return The given file's name.
+   */
+  std::string const& get_file_name() const;
 
  private:
-  std::list<MaterialPass> vertex_passes_;
-  std::list<MaterialPass> fragment_passes_;
+  std::string file_name_;
+  mutable std::string content_;
 
-
+  mutable bool is_loaded_;
 };
 
 }
 
-#endif  // GUA_MATERIAL_DESCRIPTION_HPP
+#endif  // GUA_TEXTFILE_HPP

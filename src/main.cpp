@@ -65,13 +65,16 @@ int main() {
         .set_uniform("color", 1.f)
     );
 
-  auto material(std::make_shared<gua::Material>("test", desc));
+  auto desc2 = gua::MaterialDescription();
+  desc2.load_from_file("test.gmd");
+
+  auto material(std::make_shared<gua::Material>("test", desc2));
   gua::MaterialDatabase::instance()->add("test", material);
 
-  auto instance(material->get_default_instance());
-  for (auto const& overwrite : instance.get_uniforms()) {
-    std::cout << overwrite.first << std::endl;
-  }
+  // auto instance(material->get_default_instance());
+  // for (auto const& overwrite : instance.get_uniforms()) {
+  //   std::cout << overwrite.first << std::endl;
+  // }
 
   gua::GeometryResource tri_mesh;
   material->use(tri_mesh);

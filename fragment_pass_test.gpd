@@ -1,0 +1,8 @@
+{
+  "name" : "fragment_pass_test",
+  "source" : "
+    void fragment_pass_test() {
+      float test = 1;
+    }
+  "
+}

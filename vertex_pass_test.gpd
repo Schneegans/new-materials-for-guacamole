@@ -1,0 +1,8 @@
+{
+  "name" : "vertex_pass_test",
+  "source" : "
+    void vertex_pass_test() {
+      float test = 1;
+    }
+  "
+}

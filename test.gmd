@@ -1,0 +1,39 @@
+{
+  "vertex_passes" :
+  [
+    {
+      "name" : "vertex_pass_1",
+      "source" : "
+        void vertex_pass_1() {
+          int a = 0;
+        }
+      ",
+      "uniforms" : [
+        {
+          "name" : "color",
+          "type" : "vec3",
+          "value" : "(1.000  0.000  0.000)"
+        }
+      ]
+    },
+    {
+      "file_name" : "vertex_pass_test.gpd"
+    }
+  ],
+
+  "fragment_passes" :
+  [
+    {
+      "name" : "fragment_pass_1",
+      "source" : "
+        void fragment_pass_1() {
+          int a = 0;
+        }
+      "
+    },
+    {
+      "file_name" : "fragment_pass_test.gpd"
+    }
+  ]
+
+}
